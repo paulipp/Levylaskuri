@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Levylasku</title>
+<meta name="description" content="Levypainolaskuri salille">
+<meta name="theme-color" content="#0e0e0e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Levylasku">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0e0e0e;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --accent: #e8ff00;
+    --accent2: #ff4d00;
+    --text: #f0f0f0;
+    --muted: #666;
+    --border: #2e2e2e;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    min-height: 100vh;
+    padding-bottom: 40px;
+  }
+
+  header {
+    background: var(--surface);
+    border-bottom: 2px solid var(--accent);
+    padding: 16px 20px 14px;
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2rem;
+    letter-spacing: 2px;
+    color: var(--accent);
+    line-height: 1;
+  }
+
+  header span {
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .section {
+    padding: 16px 16px 0;
+  }
+
+  .section-label {
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .bar-btn {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.85rem;
+    padding: 12px 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.15s;
+    line-height: 1.3;
+  }
+
+  .bar-btn.active {
+    border-color: var(--accent);
+    background: rgba(232,255,0,0.08);
+    color: var(--accent);
+  }
+
+  .bar-btn .bar-weight {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .bar-btn .bar-name {
+    display: block;
+    font-size: 0.6rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .bar-btn.active .bar-name { color: var(--accent); opacity: 0.7; }
+
+  .custom-bar-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 8px;
+  }
+
+  .custom-bar-row input {
+    flex: 1;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 1rem;
+    padding: 11px 14px;
+    border-radius: 6px;
+    outline: none;
+  }
+
+  .custom-bar-row input:focus { border-color: var(--accent); }
+  .custom-bar-row input::placeholder { color: var(--muted); }
+
+  .display {
+    background: var(--surface);
+    border: 2px solid var(--accent);
+    border-radius: 10px;
+    padding: 20px;
+    margin: 16px 16px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .display::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(232,255,0,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .display-label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .total-weight {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  .total-unit {
+    font-size: 1.2rem;
+    color: var(--muted);
+    margin-left: 4px;
+  }
+
+  .breakdown {
+    margin-top: 12px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .breakdown span { color: var(--text); }
+
+  .plates-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+    margin-top: 0;
+  }
+
+  .plate-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 6px 8px;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+
+  .plate-card.has-plates {
+    border-color: var(--accent2);
+    background: rgba(255,77,0,0.07);
+  }
+
+  .plate-weight {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .plate-card.has-plates .plate-weight { color: var(--accent2); }
+
+  .plate-kg {
+    font-size: 0.55rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+
+  .plate-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .plate-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.1s;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .plate-btn:active { transform: scale(0.9); }
+  .plate-btn.minus:active { background: rgba(255,77,0,0.3); border-color: var(--accent2); }
+  .plate-btn.plus:active { background: rgba(232,255,0,0.2); border-color: var(--accent); }
+
+  .plate-count {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    min-width: 26px;
+    text-align: center;
+    color: var(--accent);
+  }
+
+  .bar-visual-wrap {
+    padding: 14px 16px 0;
+  }
+
+  .bar-visual-label {
+    font-size: 0.6rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .bar-visual {
+    display: flex;
+    align-items: center;
+    height: 52px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 0;
+    scrollbar-width: none;
+  }
+
+  .bar-visual::-webkit-scrollbar { display: none; }
+
+  .bv-bar {
+    height: 14px;
+    background: #444;
+    border-radius: 3px;
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+
+  .bv-collar {
+    width: 10px;
+    height: 28px;
+    background: #555;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  .bv-plate {
+    height: 44px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    color: #fff;
+    flex-shrink: 0;
+    margin: 0 1px;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    letter-spacing: 1px;
+  }
+
+  .reset-btn {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 16px 16px 0;
+    background: transparent;
+    border: 1.5px solid var(--border);
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 13px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+
+  .reset-btn:active {
+    border-color: var(--accent2);
+    color: var(--accent2);
+    background: rgba(255,77,0,0.08);
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>LEVYLASKU</h1>
+  <span>Plate Calculator</span>
+</header>
+
+<div class="section" style="margin-top:16px;">
+  <div class="section-label">Tangon paino</div>
+  <div class="bar-row">
+    <button class="bar-btn active" onclick="selectBar(this, 20)">
+      <span class="bar-weight">20 kg</span>
+      <span class="bar-name">Olympia</span>
+    </button>
+    <button class="bar-btn" onclick="selectBar(this, 15)">
+      <span class="bar-weight">15 kg</span>
+      <span class="bar-name">Nais-tanko</span>
+    </button>
+    <button class="bar-btn" onclick="selectBar(this, 10)">
+      <span class="bar-weight">10 kg</span>
+      <span class="bar-name">Käsipainotanko</span>
+    </button>
+  </div>
+  <div class="custom-bar-row">
+    <input type="number" id="customBar" placeholder="Muu tankopaino (kg)" inputmode="decimal" step="0.5" min="0" oninput="setCustomBar(this.value)">
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<div class="display">
+  <div class="display-label">Kokonaispaino</div>
+  <div>
+    <span class="total-weight" id="totalDisplay">20</span>
+    <span class="total-unit">KG</span>
+  </div>
+  <div class="breakdown">
+    <div>Tanko: <span id="barDisplay">20 kg</span></div>
+    <div>Levyt/puoli: <span id="plateDisplay">0 kg</span></div>
+  </div>
+</div>
+
+<div class="bar-visual-wrap">
+  <div class="bar-visual-label">Visuaalinen esitys</div>
+  <div class="bar-visual" id="barVisual"></div>
+</div>
+
+<div class="divider"></div>
+
+<div class="section" style="margin-top:16px;">
+  <div class="section-label">Levyt per puoli</div>
+  <div class="plates-grid" id="platesGrid"></div>
+</div>
+
+<button class="reset-btn" onclick="resetAll()">&#8635; Nollaa kaikki levyt</button>
+
+<!-- KÄÄNTEISLASKURI -->
+<div style="margin:24px 16px 0;">
+  <div style="height:2px;background:linear-gradient(90deg,var(--accent2),transparent);margin-bottom:16px;border-radius:2px;"></div>
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--accent2);margin-bottom:4px;">TAVOITEPAINO → KIEKOT</div>
+  <div style="font-size:0.65rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">Syötä haluttu kokonaispaino</div>
+
+  <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <input type="number" id="targetWeight" placeholder="Tavoitepaino (kg)" inputmode="decimal" step="0.5" min="0"
+      style="flex:1;background:var(--surface);border:1.5px solid var(--accent2);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:1rem;padding:13px 14px;border-radius:6px;outline:none;"
+      oninput="calcReverse()">
+  </div>
+
+  <div style="font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">
+    Käyttää ylläolevan tangon painoa: <span id="revBarInfo" style="color:var(--accent);">20 kg</span>
+  </div>
+
+  <div id="reverseResult" style="display:none;">
+    <div style="background:var(--surface);border:1.5px solid var(--accent2);border-radius:10px;padding:16px;margin-top:10px;">
+      <div style="font-size:0.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Levyt per puoli</div>
+      <div id="revPlateList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <div id="revExactNote" style="margin-top:12px;font-size:0.65rem;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;"></div>
+    </div>
+  </div>
+
+  <div id="reverseError" style="display:none;background:rgba(255,77,0,0.1);border:1.5px solid var(--accent2);border-radius:8px;padding:14px;margin-top:10px;font-size:0.8rem;color:var(--accent2);"></div>
+</div>
+
+<script>
+const PLATES = [
+  { weight: 25,   color: '#e63946' },
+  { weight: 20,   color: '#457b9d' },
+  { weight: 15,   color: '#f4a261' },
+  { weight: 10,   color: '#2a9d8f' },
+  { weight: 5,    color: '#888888' },
+  { weight: 2.5,  color: '#c77dff' },
+  { weight: 1.25, color: '#4cc9f0' },
+  { weight: 0.5,  color: '#556677' },
+];
+
+let barWeight = 20;
+let counts = {};
+PLATES.forEach(p => counts[p.weight] = 0);
+
+function selectBar(btn, weight) {
+  document.querySelectorAll('.bar-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('customBar').value = '';
+  barWeight = weight;
+  update();
+}
+
+function setCustomBar(val) {
+  document.querySelectorAll('.bar-btn').forEach(b => b.classList.remove('active'));
+  const v = parseFloat(val);
+  barWeight = (v >= 0 && !isNaN(v)) ? v : 0;
+  update();
+}
+
+function change(weight, delta) {
+  counts[weight] = Math.max(0, (counts[weight] || 0) + delta);
+  update();
+}
+
+function resetAll() {
+  PLATES.forEach(p => counts[p.weight] = 0);
+  update();
+}
+
+function formatNum(n) {
+  const rounded = Math.round(n * 100) / 100;
+  return rounded.toString().replace('.', ',');
+}
+
+function update() {
+  let plateTotalPerSide = 0;
+  PLATES.forEach(p => { plateTotalPerSide += p.weight * counts[p.weight]; });
+  const total = barWeight + plateTotalPerSide * 2;
+
+  document.getElementById('totalDisplay').textContent = formatNum(total);
+  document.getElementById('barDisplay').textContent = formatNum(barWeight) + ' kg';
+  document.getElementById('plateDisplay').textContent = formatNum(plateTotalPerSide) + ' kg';
+
+  PLATES.forEach(p => {
+    const card = document.getElementById('card-' + p.weight);
+    if (!card) return;
+    card.classList.toggle('has-plates', counts[p.weight] > 0);
+    const pw = card.querySelector('.plate-weight');
+    pw.style.color = counts[p.weight] > 0 ? p.color : '#f0f0f0';
+    card.querySelector('.plate-count').textContent = counts[p.weight];
+  });
+
+  renderBarVisual();
+}
+
+function renderBarVisual() {
+  const vis = document.getElementById('barVisual');
+  vis.innerHTML = '';
+
+  let stackedPlates = [];
+  PLATES.forEach(p => {
+    for (let i = 0; i < counts[p.weight]; i++) {
+      stackedPlates.push(p);
+    }
+  });
+
+  stackedPlates.slice().reverse().forEach(p => {
+    const w = Math.max(10, p.weight * 1.6);
+    const el = document.createElement('div');
+    el.className = 'bv-plate';
+    el.style.width = w + 'px';
+    el.style.background = p.color;
+    el.textContent = p.weight;
+    vis.appendChild(el);
+  });
+
+  const cl = document.createElement('div');
+  cl.className = 'bv-collar';
+  vis.appendChild(cl);
+
+  const bar = document.createElement('div');
+  bar.className = 'bv-bar';
+  vis.appendChild(bar);
+
+  const cr = document.createElement('div');
+  cr.className = 'bv-collar';
+  vis.appendChild(cr);
+
+  stackedPlates.forEach(p => {
+    const w = Math.max(10, p.weight * 1.6);
+    const el = document.createElement('div');
+    el.className = 'bv-plate';
+    el.style.width = w + 'px';
+    el.style.background = p.color;
+    el.textContent = p.weight;
+    vis.appendChild(el);
+  });
+
+  setTimeout(() => {
+    vis.scrollLeft = (vis.scrollWidth - vis.clientWidth) / 2;
+  }, 10);
+}
+
+function buildPlatesGrid() {
+  const grid = document.getElementById('platesGrid');
+  grid.innerHTML = '';
+  PLATES.forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'plate-card';
+    card.id = 'card-' + p.weight;
+    card.innerHTML =
+      '<div class="plate-weight">' + p.weight + '</div>' +
+      '<div class="plate-kg">KG</div>' +
+      '<div class="plate-controls">' +
+        '<button class="plate-btn minus" onclick="change(' + p.weight + ', -1)">&#8722;</button>' +
+        '<div class="plate-count">0</div>' +
+        '<button class="plate-btn plus" onclick="change(' + p.weight + ', 1)">+</button>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+}
+
+buildPlatesGrid();
+update();
+
+// --- KÄÄNTEISLASKURI ---
+
+function updateRevBarInfo() {
+  document.getElementById('revBarInfo').textContent = formatNum(barWeight) + ' kg';
+  calcReverse();
+}
+
+// Hook into existing bar selectors
+const _origSelectBar = selectBar;
+selectBar = function(btn, weight) {
+  _origSelectBar(btn, weight);
+  updateRevBarInfo();
+};
+const _origSetCustomBar = setCustomBar;
+setCustomBar = function(val) {
+  _origSetCustomBar(val);
+  updateRevBarInfo();
+};
+
+function calcReverse() {
+  const input = document.getElementById('targetWeight').value;
+  const resultDiv = document.getElementById('reverseResult');
+  const errorDiv = document.getElementById('reverseError');
+  const listDiv = document.getElementById('revPlateList');
+  const noteDiv = document.getElementById('revExactNote');
+
+  resultDiv.style.display = 'none';
+  errorDiv.style.display = 'none';
+
+  if (input === '' || input === null) return;
+
+  const target = parseFloat(input);
+  if (isNaN(target) || target < 0) return;
+
+  if (target < barWeight) {
+    errorDiv.textContent = 'Tavoitepaino on pienempi kuin tankopaino (' + formatNum(barWeight) + ' kg). Lisää levyt tangon päälle!';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const plateWeight = target - barWeight;
+  if (plateWeight < 0) return;
+
+  const perSide = plateWeight / 2;
+
+  // Greedy algorithm: suurimmasta pienimpään
+  let remaining = perSide;
+  const result = {};
+  PLATES.forEach(p => {
+    const n = Math.floor(Math.round(remaining / p.weight * 1000) / 1000);
+    if (n > 0) {
+      result[p.weight] = n;
+      remaining -= n * p.weight;
+      remaining = Math.round(remaining * 10000) / 10000;
+    }
+  });
+
+  const achieved = perSide - remaining;
+  const achievedTotal = barWeight + achieved * 2;
+  const exact = Math.abs(remaining) < 0.001;
+
+  // Render
+  listDiv.innerHTML = '';
+  let hasAny = false;
+  PLATES.forEach(p => {
+    if (result[p.weight]) {
+      hasAny = true;
+      const chip = document.createElement('div');
+      chip.style.cssText = 'background:' + p.color + '22;border:1.5px solid ' + p.color + ';border-radius:6px;padding:8px 12px;display:flex;align-items:center;gap:8px;';
+      chip.innerHTML =
+        '<span style="font-family:Bebas Neue,sans-serif;font-size:1.4rem;color:' + p.color + ';">' + result[p.weight] + 'x</span>' +
+        '<span style="font-size:0.85rem;color:var(--text);">' + p.weight + ' kg</span>';
+      listDiv.appendChild(chip);
+    }
+  });
+
+  if (!hasAny) {
+    listDiv.innerHTML = '<span style="color:var(--muted);font-size:0.8rem;">Ei levyjä — pelkkä tanko riittää!</span>';
+  }
+
+  if (exact) {
+    noteDiv.innerHTML = '&#10003; Täsmälleen <strong style="color:var(--accent);">' + formatNum(target) + ' kg</strong>';
+  } else {
+    const diff = Math.round(remaining * 2 * 1000) / 1000;
+    noteDiv.innerHTML =
+      'Lähimmäksi saatu: <strong style="color:var(--accent);">' + formatNum(achievedTotal) + ' kg</strong>' +
+      ' &nbsp;·&nbsp; Puuttuu: <span style="color:var(--accent2);">' + formatNum(diff) + ' kg</span> (ei sopivaa kiekkoa)';
+  }
+
+  resultDiv.style.display = 'block';
+}
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(reg => console.log('SW rekisteröity:', reg.scope))
+      .catch(err => console.log('SW epäonnistui:', err));
+  });
+}
+</script>
+</body>
+</html>
