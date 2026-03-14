@@ -1,2 +1,2 @@
 # Levylaskuri
-PWO HTML-laskuri levypainojen laskemiseen
+PWA HTML-laskuri levypainojen laskemiseen
