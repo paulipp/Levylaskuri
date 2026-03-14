@@ -1,4 +1,4 @@
-<!DOCTYPE html> <!-- testausta opettelun avuksi -->
+<!DOCTYPE html>
 <html lang="fi">
 <head>
 <meta charset="UTF-8">
@@ -412,27 +412,73 @@
 <div style="margin:24px 16px 0;">
   <div style="height:2px;background:linear-gradient(90deg,var(--accent2),transparent);margin-bottom:16px;border-radius:2px;"></div>
   <div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:3px;color:var(--accent2);margin-bottom:4px;">TAVOITEPAINO → KIEKOT</div>
-  <div style="font-size:0.65rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">Syötä haluttu kokonaispaino</div>
-
-  <div style="display:flex;gap:8px;margin-bottom:8px;">
-    <input type="number" id="targetWeight" placeholder="Tavoitepaino (kg)" inputmode="decimal" step="0.5" min="0"
-      style="flex:1;background:var(--surface);border:1.5px solid var(--accent2);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:1rem;padding:13px 14px;border-radius:6px;outline:none;"
-      oninput="calcReverse()">
+  <div style="font-size:0.65rem;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:14px;">
+    Tanko: <span id="revBarInfo" style="color:var(--accent);">20 kg</span>
   </div>
 
-  <div style="font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;">
-    Käyttää ylläolevan tangon painoa: <span id="revBarInfo" style="color:var(--accent);">20 kg</span>
+  <!-- STEPPER: iso numero vasemmalla, isot napit allekkain oikeassa laidassa -->
+  <div style="display:flex;align-items:stretch;gap:10px;margin-bottom:12px;">
+
+    <!-- VASEN: iso paino + pienet tarkkuusnapit -->
+    <div style="flex:1;text-align:center;display:flex;flex-direction:column;justify-content:center;">
+      <div style="font-size:0.55rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:2px;">Tavoitepaino</div>
+      <div id="revDisplay"
+        style="font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--accent2);
+               line-height:1;letter-spacing:1px;">100</div>
+      <div style="font-size:0.9rem;color:var(--muted);margin-top:-2px;">KG</div>
+      <!-- Pienet tarkkuusnapit -->
+      <div style="display:flex;justify-content:center;gap:5px;margin-top:10px;">
+        <button onclick="revStep(-1.25)"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+                 font-family:'IBM Plex Mono',monospace;font-size:0.6rem;padding:5px 7px;
+                 border-radius:4px;cursor:pointer;">−1,25</button>
+        <button onclick="revStep(-0.5)"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+                 font-family:'IBM Plex Mono',monospace;font-size:0.6rem;padding:5px 7px;
+                 border-radius:4px;cursor:pointer;">−0,5</button>
+        <button onclick="revStep(0.5)"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+                 font-family:'IBM Plex Mono',monospace;font-size:0.6rem;padding:5px 7px;
+                 border-radius:4px;cursor:pointer;">+0,5</button>
+        <button onclick="revStep(1.25)"
+          style="background:var(--surface2);border:1px solid var(--border);color:var(--muted);
+                 font-family:'IBM Plex Mono',monospace;font-size:0.6rem;padding:5px 7px;
+                 border-radius:4px;cursor:pointer;">+1,25</button>
+      </div>
+    </div>
+
+    <!-- OIKEA: isot +2,5 / -2,5 napit allekkain -->
+    <div style="display:flex;flex-direction:column;gap:8px;width:80px;flex-shrink:0;">
+      <button id="revPlus" onclick="revStep(2.5)"
+        style="flex:1;background:var(--surface);border:2px solid var(--border);color:var(--accent);
+               font-size:1.6rem;font-family:'Bebas Neue',sans-serif;
+               border-radius:12px;cursor:pointer;transition:all 0.1s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;
+               line-height:1;gap:2px;">
+        <span style="font-size:1.8rem;">+</span>
+        <span style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;">2,5 kg</span>
+      </button>
+      <button id="revMinus" onclick="revStep(-2.5)"
+        style="flex:1;background:var(--surface);border:2px solid var(--border);color:var(--text);
+               font-size:1.6rem;font-family:'Bebas Neue',sans-serif;
+               border-radius:12px;cursor:pointer;transition:all 0.1s;
+               display:flex;flex-direction:column;align-items:center;justify-content:center;
+               line-height:1;gap:2px;">
+        <span style="font-size:1.8rem;">−</span>
+        <span style="font-size:0.7rem;color:var(--muted);font-family:'IBM Plex Mono',monospace;">2,5 kg</span>
+      </button>
+    </div>
+
   </div>
 
-  <div id="reverseResult" style="display:none;">
-    <div style="background:var(--surface);border:1.5px solid var(--accent2);border-radius:10px;padding:16px;margin-top:10px;">
+  <!-- TULOSLAATIKKO -->
+  <div id="reverseResult">
+    <div style="background:var(--surface);border:1.5px solid var(--accent2);border-radius:10px;padding:16px;">
       <div style="font-size:0.6rem;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:10px;">Levyt per puoli</div>
-      <div id="revPlateList" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
+      <div id="revPlateList" style="display:flex;flex-wrap:wrap;gap:8px;min-height:32px;"></div>
       <div id="revExactNote" style="margin-top:12px;font-size:0.65rem;color:var(--muted);border-top:1px solid var(--border);padding-top:10px;"></div>
     </div>
   </div>
-
-  <div id="reverseError" style="display:none;background:rgba(255,77,0,0.1);border:1.5px solid var(--accent2);border-radius:8px;padding:14px;margin-top:10px;font-size:0.8rem;color:var(--accent2);"></div>
 </div>
 
 <script>
@@ -449,6 +495,7 @@ const PLATES = [
 
 let barWeight = 20;
 let counts = {};
+let revTarget = 100;
 PLATES.forEach(p => counts[p.weight] = 0);
 
 function selectBar(btn, weight) {
@@ -571,6 +618,7 @@ function buildPlatesGrid() {
 
 buildPlatesGrid();
 update();
+calcReverse();
 
 // --- KÄÄNTEISLASKURI ---
 
@@ -579,7 +627,22 @@ function updateRevBarInfo() {
   calcReverse();
 }
 
-// Hook into existing bar selectors
+// Askelnappi: muuttaa tavoitepainoa delta-verran
+function revStep(delta) {
+  revTarget = Math.max(0, Math.round((revTarget + delta) * 100) / 100);
+  calcReverse();
+
+  // Nappianimaatio: väläytä reunaväri
+  const btn = delta > 0
+    ? document.getElementById('revPlus')
+    : document.getElementById('revMinus');
+  if (btn) {
+    const flashColor = delta > 0 ? 'var(--accent)' : 'var(--accent2)';
+    btn.style.borderColor = flashColor;
+    setTimeout(() => { btn.style.borderColor = 'var(--border)'; }, 150);
+  }
+}
+
 const _origSelectBar = selectBar;
 selectBar = function(btn, weight) {
   _origSelectBar(btn, weight);
@@ -592,32 +655,24 @@ setCustomBar = function(val) {
 };
 
 function calcReverse() {
-  const input = document.getElementById('targetWeight').value;
-  const resultDiv = document.getElementById('reverseResult');
-  const errorDiv = document.getElementById('reverseError');
+  const target = revTarget;
+
+  // Päivitä näyttö
+  document.getElementById('revDisplay').textContent = formatNum(target);
+
   const listDiv = document.getElementById('revPlateList');
   const noteDiv = document.getElementById('revExactNote');
 
-  resultDiv.style.display = 'none';
-  errorDiv.style.display = 'none';
-
-  if (input === '' || input === null) return;
-
-  const target = parseFloat(input);
-  if (isNaN(target) || target < 0) return;
-
+  // Jos tavoite alle tangon painon, näytä virheilmoitus tulosalueen tilalla
   if (target < barWeight) {
-    errorDiv.textContent = 'Tavoitepaino on pienempi kuin tankopaino (' + formatNum(barWeight) + ' kg). Lisää levyt tangon päälle!';
-    errorDiv.style.display = 'block';
+    listDiv.innerHTML = '<span style="color:var(--accent2);font-size:0.8rem;">⚠ Tavoite alle tangon painon (' + formatNum(barWeight) + ' kg)</span>';
+    noteDiv.innerHTML = '';
     return;
   }
 
-  const plateWeight = target - barWeight;
-  if (plateWeight < 0) return;
+  const perSide = (target - barWeight) / 2;
 
-  const perSide = plateWeight / 2;
-
-  // Greedy algorithm: suurimmasta pienimpään
+  // Ahne algoritmi
   let remaining = perSide;
   const result = {};
   PLATES.forEach(p => {
@@ -633,7 +688,6 @@ function calcReverse() {
   const achievedTotal = barWeight + achieved * 2;
   const exact = Math.abs(remaining) < 0.001;
 
-  // Render
   listDiv.innerHTML = '';
   let hasAny = false;
   PLATES.forEach(p => {
@@ -657,12 +711,11 @@ function calcReverse() {
   } else {
     const diff = Math.round(remaining * 2 * 1000) / 1000;
     noteDiv.innerHTML =
-      'Lähimmäksi saatu: <strong style="color:var(--accent);">' + formatNum(achievedTotal) + ' kg</strong>' +
-      ' &nbsp;·&nbsp; Puuttuu: <span style="color:var(--accent2);">' + formatNum(diff) + ' kg</span> (ei sopivaa kiekkoa)';
+      'Lähimmäksi: <strong style="color:var(--accent);">' + formatNum(achievedTotal) + ' kg</strong>' +
+      ' &nbsp;·&nbsp; Puuttuu: <span style="color:var(--accent2);">' + formatNum(diff) + ' kg</span>';
   }
-
-  resultDiv.style.display = 'block';
 }
+
 </script>
 <script>
 if ('serviceWorker' in navigator) {
