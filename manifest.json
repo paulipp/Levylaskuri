@@ -1,6 +1,6 @@
 {
   "name": "Levypainolaskuri",
-  "short_name": "Levylasku",
+  "short_name": "Levylaskuri",
   "description": "Levypainolaskuri salille",
   "start_url": "./index.html",
   "display": "standalone",
